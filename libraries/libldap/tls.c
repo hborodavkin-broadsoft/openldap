@@ -903,7 +903,8 @@ tls_get_cert( SSL *s )
 	if (SSL_get_verify_result(s)) {
 		/* If we can send an alert, do so */
 		if (SSL_version(s) != SSL2_VERSION) {
-			ssl3_send_alert(s,SSL3_AL_WARNING,SSL3_AD_BAD_CERTIFICATE);
+			// This doesn't link on Windows as the function is not exported
+			//ssl3_send_alert(s,SSL3_AL_WARNING,SSL3_AD_BAD_CERTIFICATE);
 		}
 		return NULL;
 	}

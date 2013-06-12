@@ -454,7 +454,7 @@
 /* #undef HAVE_NETINET_TCP_H */
 
 /* Define if you have the <openssl/ssl.h> header file.  */
-/* #undef HAVE_OPENSSL_SSL_H */
+#define HAVE_OPENSSL_SSL_H 1
 
 /* Define if you have the <process.h> header file.  */
 #define HAVE_PROCESS_H 1
@@ -697,7 +697,7 @@
 /* #undef HAVE_RSAREF */
 
 /* define if you have TLS */
-/* #undef HAVE_TLS */
+#define HAVE_TLS 1
 
 /* define to support LAN Manager passwords */
 /* #undef SLAPD_LMHASH */
