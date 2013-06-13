@@ -97,6 +97,11 @@ IF(WIN32)
 		${EXTERN_ROOT}/OpenSSL/libeay32.lib
 		${EXTERN_ROOT}/OpenSSL/ssleay32.lib
 	)
+ELSE(WIN32)
+	LIST(APPEND LNK_LIBRARIES
+		ssl
+		crypto
+	)
 ENDIF(WIN32)
 
 TARGET_LINK_LIBRARIES(openldap
