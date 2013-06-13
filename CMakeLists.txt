@@ -90,9 +90,14 @@ LIST(APPEND LNK_LIBRARIES
 	libldif
 	liblutil
 	libsasl
-	${EXTERN_ROOT}/OpenSSL/libeay32.lib
-	${EXTERN_ROOT}/OpenSSL/ssleay32.lib
 )
+
+IF(WIN32)
+	LIST(APPEND LNK_LIBRARIES
+		${EXTERN_ROOT}/OpenSSL/libeay32.lib
+		${EXTERN_ROOT}/OpenSSL/ssleay32.lib
+	)
+ENDIF(WIN32)
 
 TARGET_LINK_LIBRARIES(openldap
 	${LNK_LIBRARIES}
