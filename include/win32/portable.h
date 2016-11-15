@@ -873,11 +873,13 @@
 /* if you have spawnlp() */
 #define HAVE_SPAWNLP 1
 
+#if _MSC_VER < 1900
 /* define to snprintf routine */
 #define snprintf _snprintf
 
 /* define to vsnprintf routine */
 #define vsnprintf _vsnprintf
+#endif /* _MSC_VER < 1900 */
 
 /* define if sys_errlist is not declared in stdio.h or errno.h */
 /* #undef DECL_SYS_ERRLIST */
