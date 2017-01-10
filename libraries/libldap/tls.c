@@ -151,6 +151,15 @@ ldap_pvt_tls_init( void )
 	if ( tls_initialized ) return 0;
 	tls_initialized = 1;
 
+#ifdef OPENSSL_FIPS
+	if(!FIPS_mode()){
+		if(!FIPS_mode_set(1)){
+			ERR_load_crypto_strings();
+			ERR_print_errors_fp(stderr);
+		}
+	}
+#endif
+
 #ifdef HAVE_EBCDIC
 	{
 		char *file = LDAP_STRDUP( tls_opt_randfile );
