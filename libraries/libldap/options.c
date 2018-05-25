@@ -316,6 +316,12 @@ ldap_set_option(
 	int		option,
 	LDAP_CONST void	*invalue)
 {
+#ifdef NEW_LOGGING
+	LDAP_LOG ( OPERATION, ENTRY, "ldap_set_option: %d\n", option, 0, 0 );
+#else
+	Debug( LDAP_DEBUG_TRACE, "ldap_set_option: %d\n", option, 0, 0 );
+#endif
+
 	struct ldapoptions *lo;
 	int *dbglvl = NULL;
 
@@ -613,8 +619,20 @@ ldap_set_option(
 
 	default:
 #ifdef HAVE_TLS
+#ifdef NEW_LOGGING
+	LDAP_LOG ( OPERATION, ENTRY, "ldap_set_option tls enabled.\n", 0, 0, 0 );
+#else
+	Debug( LDAP_DEBUG_TRACE, "ldap_set_option tls enabled.\n", 0, 0, 0 );
+#endif
 		if ( ldap_pvt_tls_set_option( ld, option, (void *)invalue ) == 0 )
+		{
+#ifdef NEW_LOGGING
+			LDAP_LOG ( OPERATION, ENTRY, "ldap_pvt_tls_set_option succeeded.\n", 0, 0, 0 );
+#else
+			Debug( LDAP_DEBUG_TRACE, "ldap_pvt_tls_set_option succeeded.\n", 0, 0, 0 );
+#endif
 			return LDAP_OPT_SUCCESS;
+		}
 #endif
 #ifdef HAVE_CYRUS_SASL
 		if ( ldap_int_sasl_set_option( ld, option, (void *)invalue ) == 0 )
