@@ -261,7 +261,79 @@ ldap_pvt_tls_init_def_ctx( void )
 			goto error_exit;
 		}
 
-		if (tls_opt_cacertfile != NULL || tls_opt_cacertdir != NULL) {
+		if (tls_opt_cacertfile != NULL){
+#ifdef NEW_LOGGING
+			LDAP_LOG ( TRANSPORT, ERR,
+				"ldap_pvt_tls_init_def_ctx: "
+				"TLS read certs from buffer.\n", 0);
+#else
+			Debug( LDAP_DEBUG_ANY,
+				   "TLS: read certs from buffer.\n", 0, 0);
+#endif
+			BIO *cbio = BIO_new_mem_buf((void*)tls_opt_cacertfile, (int)strlen(tls_opt_cacertfile));
+			X509_STORE  *cts = SSL_CTX_get_cert_store(tls_def_ctx.native_handle());
+			if(!cts || !cbio){
+#ifdef NEW_LOGGING
+				LDAP_LOG ( TRANSPORT, ERR,
+					"ldap_pvt_tls_init_def_ctx: "
+					"TLS failed to get store "
+					"(store:`%s', buffer:`%s').\n",
+					cts ? "store ok" : "store null",
+					cbio ? "buffer ok" : "buffer null", 0 );
+#else
+				Debug( LDAP_DEBUG_ANY,
+				   "TLS: failed to get store.\n", 0, 0 );
+				   );
+#endif
+				tls_report_error();
+				rc = -1;
+				goto error_exit;
+			}
+			X509_INFO *itmp;
+			int i, count = 0, type = X509_FILETYPE_PEM;
+			STACK_OF(X509_INFO) *inf = PEM_X509_INFO_read_bio(cbio, NULL, NULL, NULL);
+			if (!inf)
+			{
+#ifdef NEW_LOGGING
+				LDAP_LOG ( TRANSPORT, ERR,
+					"ldap_pvt_tls_init_def_ctx: "
+					"TLS failed to read bio.\n ", 0 );
+#else
+				Debug( LDAP_DEBUG_ANY,
+				   	"TLS: failed to read bio.\n", 0, 0 );
+#endif
+				BIO_free(cbio);//cleanup
+    				
+				tls_report_error();
+				rc = -1;
+				goto error_exit;
+			}
+			//itterate over all entries from the pem file, add them to the x509_store one by one
+			for (i = 0; i < sk_X509_INFO_num(inf); i++) {
+    				itmp = sk_X509_INFO_value(inf, i);
+    				if (itmp->x509) {
+          				X509_STORE_add_cert(cts, itmp->x509);
+          				count++;
+    				}
+    				if (itmp->crl) {
+          				X509_STORE_add_crl(cts, itmp->crl);
+          				count++;
+    				}
+			}
+			sk_X509_INFO_pop_free(inf, X509_INFO_free); //cleanup
+			BIO_free(cbio);//cleanup               
+#ifdef NEW_LOGGING
+			LDAP_LOG ( TRANSPORT, ERR,
+				"ldap_pvt_tls_init_def_ctx: "
+				"TLS read info from buffer "
+				"(total:`%s',count:`%s').\n",
+				 i, count, 0 );
+#else
+			Debug( LDAP_DEBUG_ANY,
+				   "TLS: read info from buffer.\n", 0, 0 );
+#endif
+                }
+                else if(tls_opt_cacertdir != NULL) {
 			if ( !SSL_CTX_load_verify_locations( tls_def_ctx,
 					cacertfile, cacertdir ) ||
 				!SSL_CTX_set_default_verify_paths( tls_def_ctx ) )
