@@ -286,7 +286,7 @@ ldap_pvt_tls_init_def_ctx( void )
 				Debug( LDAP_DEBUG_ANY,
 				   "TLS: failed to get store: %s %s.\n", 
 					cts ? "store ok" : "store null",
-					cbio ? "buffer ok" : "buffer null", 0, 0 );
+					cbio ? "buffer ok" : "buffer null", 0 );
 #endif
 				tls_report_error();
 				rc = -1;
@@ -336,7 +336,7 @@ ldap_pvt_tls_init_def_ctx( void )
 #else
 			Debug( LDAP_DEBUG_ANY,
 				   "TLS: read info from buffer: %d, %d\n", 
-				i, count, 0, 0 );
+				i, count, 0 );
 #endif
                 }
                 else if(tls_opt_cacertdir != NULL) {
