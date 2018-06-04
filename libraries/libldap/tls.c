@@ -265,13 +265,15 @@ ldap_pvt_tls_init_def_ctx( void )
 #ifdef NEW_LOGGING
 			LDAP_LOG ( TRANSPORT, ERR,
 				"ldap_pvt_tls_init_def_ctx: "
-				"TLS read certs from buffer.\n", 0);
+				"TLS read certs from buffer: %d.\n", 
+				strlen(tls_optcacertfile), 0, 0);
 #else
 			Debug( LDAP_DEBUG_ANY,
-				   "TLS: read certs from buffer.\n", 0, 0);
+				"TLS: read certs from buffer: %d.\n", 
+				strlen(tls_opt_cacertfile), 0, 0);
 #endif
 			BIO *cbio = BIO_new_mem_buf((void*)tls_opt_cacertfile, (int)strlen(tls_opt_cacertfile));
-			X509_STORE  *cts = SSL_CTX_get_cert_store(tls_def_ctx.native_handle());
+			X509_STORE  *cts = SSL_CTX_get_cert_store(tls_def_ctx);
 			if(!cts || !cbio){
 #ifdef NEW_LOGGING
 				LDAP_LOG ( TRANSPORT, ERR,
@@ -279,11 +281,12 @@ ldap_pvt_tls_init_def_ctx( void )
 					"TLS failed to get store "
 					"(store:`%s', buffer:`%s').\n",
 					cts ? "store ok" : "store null",
-					cbio ? "buffer ok" : "buffer null", 0 );
+					cbio ? "buffer ok" : "buffer null", 0, 0 );
 #else
 				Debug( LDAP_DEBUG_ANY,
-				   "TLS: failed to get store.\n", 0, 0 );
-				   );
+				   "TLS: failed to get store: %s %s.\n", 
+					cts ? "store ok" : "store null",
+					cbio ? "buffer ok" : "buffer null", 0, 0 );
 #endif
 				tls_report_error();
 				rc = -1;
@@ -297,10 +300,12 @@ ldap_pvt_tls_init_def_ctx( void )
 #ifdef NEW_LOGGING
 				LDAP_LOG ( TRANSPORT, ERR,
 					"ldap_pvt_tls_init_def_ctx: "
-					"TLS failed to read bio.\n ", 0 );
+					"TLS failed to read bio: %s.\n ",
+					cbio ? "not null" : "null", 0, 0 );
 #else
 				Debug( LDAP_DEBUG_ANY,
-				   	"TLS: failed to read bio.\n", 0, 0 );
+				   	"TLS: failed to read bio: %s.\n", 
+					cbio ? "not null" : "null", 0, 0 );
 #endif
 				BIO_free(cbio);//cleanup
     				
@@ -326,11 +331,12 @@ ldap_pvt_tls_init_def_ctx( void )
 			LDAP_LOG ( TRANSPORT, ERR,
 				"ldap_pvt_tls_init_def_ctx: "
 				"TLS read info from buffer "
-				"(total:`%s',count:`%s').\n",
-				 i, count, 0 );
+				"(total: %d,count: %d).\n",
+				 i, count, 0, 0 );
 #else
 			Debug( LDAP_DEBUG_ANY,
-				   "TLS: read info from buffer.\n", 0, 0 );
+				   "TLS: read info from buffer: %d, %d\n", 
+				i, count, 0, 0 );
 #endif
                 }
                 else if(tls_opt_cacertdir != NULL) {
