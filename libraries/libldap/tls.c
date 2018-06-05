@@ -221,6 +221,21 @@ ldap_pvt_tls_init_def_ctx( void )
 	}
 #endif
 
+
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, 
+			"ldap_pvt_tls_init_def_ctx a: %d b: %d.\n", 
+			cacertfile ? strlen(cacertfile) : 0, 
+			certfile ? strlen(certfile) : 0, 
+			0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, 
+			"ldap_pvt_tls_init_def_ctx a: %d b: %d.\n", 
+			cacertfile ? strlen(cacertfile) : 0, 
+			certfile ? strlen(certfile) : 0, 
+			0 );
+#endif
+
 #ifdef LDAP_R_COMPILE
 	ldap_pvt_thread_mutex_lock( &tls_def_ctx_mutex );
 #endif
@@ -261,7 +276,31 @@ ldap_pvt_tls_init_def_ctx( void )
 			goto error_exit;
 		}
 
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, 
+			"ldap_pvt_tls_init_def_ctx a: %d.\n", 
+			tls_opt_cacertfile ? strlen(tls_opt_cacertfile) : 0, 
+			0, 
+			0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, 
+			"ldap_pvt_tls_init_def_ctx a: %d.\n", 
+			tls_opt_cacertfile ? strlen(tls_opt_cacertfile) : 0, 
+			0, 
+			0 );
+#endif
 		if (tls_opt_cacertfile != NULL){
+#ifdef NEW_LOGGING
+			LDAP_LOG ( OPERATION, ENTRY,
+				"ldap_pvt_tls_init_def_ctx: "
+				"TLS handle certs buffer a.\n", 
+				0, 0, 0);
+#else
+			Debug( LDAP_DEBUG_TRACE,
+				"TLS: handle certs buffer: a.\n", 
+				0, 0, 0);
+#endif
+
 #ifdef NEW_LOGGING
 			LDAP_LOG ( TRANSPORT, ERR,
 				"ldap_pvt_tls_init_def_ctx: "
@@ -271,6 +310,16 @@ ldap_pvt_tls_init_def_ctx( void )
 			Debug( LDAP_DEBUG_ANY,
 				"TLS: read certs from buffer: %d.\n", 
 				strlen(tls_opt_cacertfile), 0, 0);
+#endif
+#ifdef NEW_LOGGING
+			LDAP_LOG ( OPERATION, ENTRY,
+				"ldap_pvt_tls_init_def_ctx: "
+				"TLS handle new mem buffer a.\n", 
+				0, 0, 0);
+#else
+			Debug( LDAP_DEBUG_TRACE,
+				"TLS: handle new mem buffer: a.\n", 
+				0, 0, 0);
 #endif
 			BIO *cbio = BIO_new_mem_buf((void*)tls_opt_cacertfile, (int)strlen(tls_opt_cacertfile));
 			X509_STORE  *cts = SSL_CTX_get_cert_store(tls_def_ctx);
@@ -292,6 +341,16 @@ ldap_pvt_tls_init_def_ctx( void )
 				rc = -1;
 				goto error_exit;
 			}
+#ifdef NEW_LOGGING
+			LDAP_LOG ( OPERATION, ENTRY,
+				"ldap_pvt_tls_init_def_ctx: "
+				"TLS handle read bio a.\n", 
+				0, 0, 0);
+#else
+			Debug( LDAP_DEBUG_TRACE,
+				"TLS: handle read bio: a.\n", 
+				0, 0, 0);
+#endif
 			X509_INFO *itmp;
 			int i, count = 0, type = X509_FILETYPE_PEM;
 			STACK_OF(X509_INFO) *inf = PEM_X509_INFO_read_bio(cbio, NULL, NULL, NULL);
@@ -313,14 +372,44 @@ ldap_pvt_tls_init_def_ctx( void )
 				rc = -1;
 				goto error_exit;
 			}
+#ifdef NEW_LOGGING
+			LDAP_LOG ( OPERATION, ENTRY,
+				"ldap_pvt_tls_init_def_ctx: "
+				"TLS handle iterate infos a.\n", 
+				0, 0, 0);
+#else
+			Debug( LDAP_DEBUG_TRACE,
+				"TLS: handle iterate infos: a.\n", 
+				0, 0, 0);
+#endif
 			//itterate over all entries from the pem file, add them to the x509_store one by one
 			for (i = 0; i < sk_X509_INFO_num(inf); i++) {
     				itmp = sk_X509_INFO_value(inf, i);
     				if (itmp->x509) {
+#ifdef NEW_LOGGING
+					LDAP_LOG ( OPERATION, ENTRY,
+						"ldap_pvt_tls_init_def_ctx: "
+						"TLS handle add cert a.\n", 
+						0, 0, 0);
+#else
+					Debug( LDAP_DEBUG_TRACE,
+						"TLS: handle add cert: a.\n", 
+						0, 0, 0);
+#endif
           				X509_STORE_add_cert(cts, itmp->x509);
           				count++;
     				}
     				if (itmp->crl) {
+#ifdef NEW_LOGGING
+					LDAP_LOG ( OPERATION, ENTRY,
+						"ldap_pvt_tls_init_def_ctx: "
+						"TLS handle add crl a.\n", 
+						0, 0, 0);
+#else
+					Debug( LDAP_DEBUG_TRACE,
+						"TLS: handle add crl: a.\n", 
+						0, 0, 0);
+#endif
           				X509_STORE_add_crl(cts, itmp->crl);
           				count++;
     				}
@@ -1245,8 +1334,14 @@ ldap_int_tls_config( LDAP *ld, int option, const char *arg )
 	case LDAP_OPT_X_TLS_CERTFILE:
 	case LDAP_OPT_X_TLS_KEYFILE:
 	case LDAP_OPT_X_TLS_RANDOM_FILE:
+	{
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, "ldap_int_tls_config option: %d = %s.\n", option, arg, 0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, "ldap_int_tls_config option: %d = %s.\n", option, arg, 0 );
+#endif
 		return ldap_pvt_tls_set_option( ld, option, (void *) arg );
-
+	}
 	case LDAP_OPT_X_TLS_REQUIRE_CERT:
 	case LDAP_OPT_X_TLS:
 		i = -1;
@@ -1315,6 +1410,17 @@ ldap_pvt_tls_get_option( LDAP *ld, int option, void *arg )
 	case LDAP_OPT_X_TLS_CACERTFILE:
 		*(char **)arg = tls_opt_cacertfile ?
 			LDAP_STRDUP( tls_opt_cacertfile ) : NULL;
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, 
+			"ldap_pvt_tls_get_option cacertfile buffer: %d = %s.\n", 
+			option, 
+			tls_opt_cacertfile ? tls_opt_cacertfile : "is null", 0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, 
+			"ldap_pvt_tls_get_option cacertfile buffer: %d = %s.\n", 
+			option,
+			tls_opt_cacertfile ? tls_opt_cacertfile : "is null", 0 );
+#endif
 		break;
 	case LDAP_OPT_X_TLS_CACERTDIR:
 		*(char **)arg = tls_opt_cacertdir ?
@@ -1356,6 +1462,12 @@ ldap_pvt_tls_get_option( LDAP *ld, int option, void *arg )
 int
 ldap_pvt_tls_set_option( LDAP *ld, int option, void *arg )
 {
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, "ldap_pvt_tls_set_option: %d.\n", option, 0, 0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, "ldap_pvt_tls_set_option: %d.\n", option, 0, 0 );
+#endif
+
 	struct ldapoptions *lo;
 
 	if( ld != NULL ) {
@@ -1407,9 +1519,33 @@ ldap_pvt_tls_set_option( LDAP *ld, int option, void *arg )
 
 	switch( option ) {
 	case LDAP_OPT_X_TLS_CACERTFILE:
+	{
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, 
+			"ldap_pvt_tls_set_option handle cacertfile buffer: %d = %s.\n", 
+			option, 
+			tls_opt_cacertfile ? tls_opt_cacertfile : "is null", 0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, 
+			"ldap_pvt_tls_set_option handle cacertfile buffer: %d = %s.\n", 
+			option, 
+			tls_opt_cacertfile ? tls_opt_cacertfile : "is null", 0 );
+#endif
 		if ( tls_opt_cacertfile ) LDAP_FREE( tls_opt_cacertfile );
 		tls_opt_cacertfile = arg ? LDAP_STRDUP( (char *) arg ) : NULL;
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, 
+			"ldap_pvt_tls_set_option handle cacertfile buffer changed: %d = %s.\n", 
+			option, 
+			tls_opt_cacertfile ? tls_opt_cacertfile : "is null", 0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, 
+			"ldap_pvt_tls_set_option handle cacertfile buffer changed: %d = %s.\n", 
+			option, 
+			tls_opt_cacertfile ? tls_opt_cacertfile : "is null", 0 );
+#endif
 		break;
+	}
 	case LDAP_OPT_X_TLS_CACERTDIR:
 		if ( tls_opt_cacertdir ) LDAP_FREE( tls_opt_cacertdir );
 		tls_opt_cacertdir = arg ? LDAP_STRDUP( (char *) arg ) : NULL;
