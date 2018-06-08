@@ -236,12 +236,45 @@ ldap_pvt_tls_init_def_ctx( void )
 			0 );
 #endif
 
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, 
+			"ldap_pvt_tls_init_def_ctx about to lock mutex.\n", 0, 0, 0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, 	
+			"ldap_pvt_tls_init_def_ctx about to lock mutex.\n", 0, 0, 0 );
+#endif
+
 #ifdef LDAP_R_COMPILE
 	ldap_pvt_thread_mutex_lock( &tls_def_ctx_mutex );
 #endif
+
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, 
+			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, 		
+			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
+#endif
+
 	if ( tls_def_ctx == NULL ) {
+
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, 
+			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, 		
+			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
+#endif
 		int i;
 		tls_def_ctx = SSL_CTX_new( SSLv23_method() );
+
+#ifdef NEW_LOGGING
+		LDAP_LOG ( OPERATION, ENTRY, 
+			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
+#else   
+        	Debug( LDAP_DEBUG_TRACE, 		
+			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
+#endif
 		if ( tls_def_ctx == NULL ) {
 #ifdef NEW_LOGGING
 			LDAP_LOG ( TRANSPORT, ERR, "ldap_pvt_tls_init_def_ctx: "
@@ -566,6 +599,14 @@ error_exit:
 static STACK_OF(X509_NAME) *
 get_ca_list( char * bundle, char * dir )
 {
+
+#ifdef NEW_LOGGING
+	LDAP_LOG ( OPERATION, ENTRY, 
+		"get_ca_list: %s or %s \n", bundle ? bundle : "empty bundle", dir ? dir : "empty dir", 0 );
+#else   
+        Debug( LDAP_DEBUG_TRACE, 		
+		"get_ca_list: %s or %s \n", bundle ? bundle : "empty bundle", dir ? dir : "empty dir", 0 );
+#endif
 	STACK_OF(X509_NAME) *ca_list = NULL;
 
 	if ( bundle ) {
@@ -1647,6 +1688,13 @@ ldap_int_tls_start ( LDAP *ld, LDAPConn *conn, LDAPURLDesc *srv )
 static void
 tls_info_cb( const SSL *ssl, int where, int ret )
 {
+#ifdef NEW_LOGGING
+	LDAP_LOG ( TRANSPORT, ERR,
+		"tls_info_cb.\n", 0, 0, 0 );
+#else
+	Debug( LDAP_DEBUG_ANY, 
+		"TLS: tls_info_cb.\n",0,0,0);
+#endif
 	int w;
 	char *op;
 	char *state = (char *) SSL_state_string_long( (SSL *)ssl );
@@ -1734,6 +1782,13 @@ tls_info_cb( const SSL *ssl, int where, int ret )
 static int
 tls_verify_cb( int ok, X509_STORE_CTX *ctx )
 {
+#ifdef NEW_LOGGING
+	LDAP_LOG ( TRANSPORT, ERR,
+		"tls_verify_cb: %d and %s \n", ok, ctx ? "exist" : "is null", 0 );
+#else
+	Debug( LDAP_DEBUG_ANY, 
+		"tls_verify_cb: %d and %s \n", ok, ctx ? "exist" : "is null", 0 );
+#endif
 	X509 *cert;
 	int errnum;
 	int errdepth;
@@ -1757,6 +1812,15 @@ tls_verify_cb( int ok, X509_STORE_CTX *ctx )
 	sname = X509_NAME_oneline( subject, NULL, 0 );
 	iname = X509_NAME_oneline( issuer, NULL, 0 );
 	if ( !ok ) certerr = (char *)X509_verify_cert_error_string( errnum );
+
+#ifdef NEW_LOGGING
+	LDAP_LOG ( TRANSPORT, ERR,
+		"tls_verify_cb: %s and %s and %s \n", subject ? subject : "no subject", issuer ? issuer : "no issuer", certerr ? certerr : "no cert err" );
+#else
+	Debug( LDAP_DEBUG_ANY, 
+		"tls_verify_cb: %s and %s and %s \n", subject ? subject : "no subject", issuer ? issuer : "no issuer", certerr ? certerr : "no cert err" );
+#endif
+
 #ifdef HAVE_EBCDIC
 	if ( sname ) __etoa( sname );
 	if ( iname ) __etoa( iname );
@@ -1801,6 +1865,13 @@ tls_verify_cb( int ok, X509_STORE_CTX *ctx )
 static int
 tls_verify_ok( int ok, X509_STORE_CTX *ctx )
 {
+#ifdef NEW_LOGGING
+	LDAP_LOG ( TRANSPORT, ERR,
+		"tls_verify_ok.\n", 0, 0, 0 );
+#else
+	Debug( LDAP_DEBUG_ANY, 
+		"TLS: tls_verify_ok.\n",0,0,0);
+#endif
 	(void) tls_verify_cb( ok, ctx );
 	return 1;
 }
