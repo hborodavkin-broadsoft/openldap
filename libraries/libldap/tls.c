@@ -228,8 +228,8 @@ ldap_pvt_tls_init_def_ctx( void )
 			cacertfile ? strlen(cacertfile) : 0, 
 			certfile ? strlen(certfile) : 0, 
 			0 );
-#else   
-        	Debug( LDAP_DEBUG_TRACE, 
+#else
+		Debug( LDAP_DEBUG_TRACE,
 			"ldap_pvt_tls_init_def_ctx a: %d b: %d.\n", 
 			cacertfile ? strlen(cacertfile) : 0, 
 			certfile ? strlen(certfile) : 0, 
@@ -239,8 +239,8 @@ ldap_pvt_tls_init_def_ctx( void )
 #ifdef NEW_LOGGING
 		LDAP_LOG ( OPERATION, ENTRY, 
 			"ldap_pvt_tls_init_def_ctx about to lock mutex.\n", 0, 0, 0 );
-#else   
-        	Debug( LDAP_DEBUG_TRACE, 	
+#else
+		Debug( LDAP_DEBUG_TRACE,
 			"ldap_pvt_tls_init_def_ctx about to lock mutex.\n", 0, 0, 0 );
 #endif
 
@@ -251,8 +251,8 @@ ldap_pvt_tls_init_def_ctx( void )
 #ifdef NEW_LOGGING
 		LDAP_LOG ( OPERATION, ENTRY, 
 			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
-#else   
-        	Debug( LDAP_DEBUG_TRACE, 		
+#else
+		Debug( LDAP_DEBUG_TRACE,
 			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
 #endif
 
@@ -261,8 +261,8 @@ ldap_pvt_tls_init_def_ctx( void )
 #ifdef NEW_LOGGING
 		LDAP_LOG ( OPERATION, ENTRY, 
 			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
-#else   
-        	Debug( LDAP_DEBUG_TRACE, 		
+#else
+		Debug( LDAP_DEBUG_TRACE,
 			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
 #endif
 		int i;
@@ -271,8 +271,8 @@ ldap_pvt_tls_init_def_ctx( void )
 #ifdef NEW_LOGGING
 		LDAP_LOG ( OPERATION, ENTRY, 
 			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
-#else   
-        	Debug( LDAP_DEBUG_TRACE, 		
+#else
+		Debug( LDAP_DEBUG_TRACE,
 			"ldap_pvt_tls_init_def_ctx locked mutex: %s\n", tls_def_ctx == NULL ? "ctx is null" : "ctx exists", 0, 0 );
 #endif
 		if ( tls_def_ctx == NULL ) {
@@ -282,7 +282,7 @@ ldap_pvt_tls_init_def_ctx( void )
 				ERR_peek_error(), 0, 0 );
 #else
 			Debug( LDAP_DEBUG_ANY,
-			   "TLS: could not allocate default ctx (%lu).\n",
+				"TLS: could not allocate default ctx (%lu).\n",
 				ERR_peek_error(),0,0);
 #endif
 			rc = -1;
@@ -308,6 +308,7 @@ ldap_pvt_tls_init_def_ctx( void )
 			rc = -1;
 			goto error_exit;
 		}
+	}
 
 #ifdef NEW_LOGGING
 		LDAP_LOG ( OPERATION, ENTRY, 
@@ -315,8 +316,8 @@ ldap_pvt_tls_init_def_ctx( void )
 			tls_opt_cacertfile ? strlen(tls_opt_cacertfile) : 0, 
 			0, 
 			0 );
-#else   
-        	Debug( LDAP_DEBUG_TRACE, 
+#else
+		Debug( LDAP_DEBUG_TRACE,
 			"ldap_pvt_tls_init_def_ctx a: %d.\n", 
 			tls_opt_cacertfile ? strlen(tls_opt_cacertfile) : 0, 
 			0, 
@@ -460,10 +461,11 @@ ldap_pvt_tls_init_def_ctx( void )
 				   "TLS: read info from buffer: %d, %d\n", 
 				i, count, 0 );
 #endif
-                }
-                else if(tls_opt_cacertdir != NULL) {
+        }
+
+        if(tls_opt_cacertdir != NULL) {
 			if ( !SSL_CTX_load_verify_locations( tls_def_ctx,
-					cacertfile, cacertdir ) ||
+					"", cacertdir ) ||
 				!SSL_CTX_set_default_verify_paths( tls_def_ctx ) )
 			{
 #ifdef NEW_LOGGING
@@ -577,7 +579,7 @@ ldap_pvt_tls_init_def_ctx( void )
 			tls_verify_ok : tls_verify_cb );
 		SSL_CTX_set_tmp_rsa_callback( tls_def_ctx, tls_tmp_rsa_cb );
 		/* SSL_CTX_set_tmp_dh_callback( tls_def_ctx, tls_tmp_dh_cb ); */
-	}
+
 error_exit:
 	if ( rc == -1 && tls_def_ctx != NULL ) {
 		SSL_CTX_free( tls_def_ctx );
