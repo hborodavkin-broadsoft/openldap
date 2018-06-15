@@ -565,16 +565,16 @@ ldap_pvt_tls_init_def_ctx( void )
 			SSL_CTX_set_info_callback( tls_def_ctx, tls_info_cb );
 		}
 
-		i = SSL_VERIFY_NONE;
+		int certi = SSL_VERIFY_NONE;
 		if ( tls_opt_require_cert ) {
-			i = SSL_VERIFY_PEER;
+			certi = SSL_VERIFY_PEER;
 			if ( tls_opt_require_cert == LDAP_OPT_X_TLS_DEMAND ||
 				 tls_opt_require_cert == LDAP_OPT_X_TLS_HARD ) {
-				i |= SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+				certi |= SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
 			}
 		}
 
-		SSL_CTX_set_verify( tls_def_ctx, i,
+		SSL_CTX_set_verify( tls_def_ctx, certi,
 			tls_opt_require_cert == LDAP_OPT_X_TLS_ALLOW ?
 			tls_verify_ok : tls_verify_cb );
 		SSL_CTX_set_tmp_rsa_callback( tls_def_ctx, tls_tmp_rsa_cb );
